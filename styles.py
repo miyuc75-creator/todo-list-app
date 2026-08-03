@@ -1,3 +1,6 @@
+"""アプリ共通スタイル（Vercel でも確実に読み込めるよう Python に同梱）"""
+
+APP_CSS = """
 *,
 *::before,
 *::after {
@@ -258,3 +261,4 @@ textarea {
     width: 100%;
   }
 }
+"""
