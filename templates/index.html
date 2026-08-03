@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Todoリスト</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <header class="page-header">
+      <h1>Todoリスト</h1>
+      <p class="subtitle">やることを登録・管理できます</p>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="messages">
+          {% for category, message in messages %}
+            <p class="message message-{{ category }}">{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <section class="card form-card">
+      <h2>新しい Todo を登録</h2>
+      <form method="post" action="{{ url_for('index') }}" class="todo-form">
+        <div class="form-group">
+          <label for="title">タイトル <span class="required">必須</span></label>
+          <input
+            type="text"
+            id="title"
+            name="title"
+            value="{{ form_title }}"
+            placeholder="例：買い物に行く"
+            maxlength="200"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="content">内容</label>
+          <textarea
+            id="content"
+            name="content"
+            rows="4"
+            placeholder="詳しい内容を入力（任意）"
+          >{{ form_content }}</textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="due_date">期日</label>
+          <input
+            type="date"
+            id="due_date"
+            name="due_date"
+            value="{{ form_due_date }}"
+          >
+        </div>
+
+        <button type="submit" class="btn btn-primary">登録する</button>
+      </form>
+    </section>
+
+    <section class="todo-list-section">
+      <h2>登録済み Todo（{{ todos|length }}件）</h2>
+
+      {% if todos %}
+        <div class="todo-list">
+          {% for todo in todos %}
+            <article class="card todo-card">
+              <div class="todo-card-header">
+                <h3>{{ todo.title }}</h3>
+                {% if todo.due_date %}
+                  <span class="due-badge">期日: {{ todo.due_date }}</span>
+                {% else %}
+                  <span class="due-badge due-badge-empty">期日: 未設定</span>
+                {% endif %}
+              </div>
+
+              {% if todo.content %}
+                <p class="todo-content">{{ todo.content }}</p>
+              {% else %}
+                <p class="todo-content todo-content-empty">（内容なし）</p>
+              {% endif %}
+
+              <div class="todo-meta">
+                <span>登録: {{ todo.created_at or "—" }}</span>
+                {% if todo.updated_at and todo.updated_at != todo.created_at %}
+                  <span>更新: {{ todo.updated_at }}</span>
+                {% endif %}
+              </div>
+
+              <a href="{{ url_for('edit', todo_id=todo.id) }}" class="btn btn-secondary">編集</a>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="card empty-state">
+          <p>まだ Todo が登録されていません。上のフォームから追加してください。</p>
+        </div>
+      {% endif %}
+    </section>
+  </div>
+</body>
+</html>
