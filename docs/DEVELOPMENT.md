@@ -191,13 +191,16 @@ git status   # .env が含まれていないこと
 | 2 | 一覧画面表示 | ✅ |
 | 3 | タイトル空でエラー表示 | ✅ |
 | 4 | 存在しない ID で一覧へ戻る | ✅ |
-| 5 | CSS 読み込み | ✅ |
+| 5 | CSS 読み込み（ローカル） | ✅ |
 | 6 | 環境変数未設定時のエラー表示 | ✅ |
 | 7 | 機密情報がコード内にない | ✅ |
 | 8 | `.env` が Git 追跡外 | ✅ |
-| 9 | Todo 登録 → スプレッドシート保存 | ⏳ 要: `.env` 設定後 |
-| 10 | Todo 編集 → スプレッドシート更新 | ⏳ 要: `.env` 設定後 |
-| 11 | Vercel デプロイ | ⏳ 要: GitHub 連携後 |
+| 9 | Todo 登録 → スプレッドシート保存 | ✅ |
+| 10 | Todo 編集 → スプレッドシート更新 | ✅ |
+| 11 | Vercel デプロイ | ✅ |
+| 12 | Vercel 本番 CSS 表示 | ✅ |
+
+**本番 URL:** https://todo-list-app-idyq.vercel.app
 
 ---
 
@@ -221,6 +224,20 @@ git status   # .env が含まれていないこと
 
 **対処:** `SheetsError` を定義し、Flask 側で `flash()` して画面表示
 
+### 課題 4: Vercel で CSS が適用されない
+
+**現象:** ローカルでは正常だが、Vercel 上では `<style></style>` が空になり、登録ボタンが灰色のまま
+
+**原因:** Vercel のサーバーレス環境に `public/static/style.css` が同梱されない
+
+**対処:** CSS を `styles.py` に Python コードとして同梱し、HTML にインラインで埋め込む方式に変更
+
+### 課題 5: `.env` 設定前に起動した Flask が接続エラーを表示
+
+**現象:** 古いプロセスが環境変数なしで動き続ける
+
+**対処:** Flask を再起動（`Ctrl+C` → `python app.py`）
+
 ---
 
 ## Git コミット履歴（開発の流れ）
@@ -240,6 +257,19 @@ git log --oneline
 | 5 | レスポンシブ CSS |
 | 6 | Vercel デプロイ設定 |
 | 7 | README と開発ログ |
+| 8 | Vercel CSS 修正（styles.py 同梱） |
+| 9 | 成果物ドキュメント更新 |
+
+---
+
+## 成果物まとめ
+
+| 項目 | 内容 |
+|------|------|
+| 本番アプリ | https://todo-list-app-idyq.vercel.app |
+| GitHub | https://github.com/miyuc75-creator/todo-list-app |
+| データ保存 | Google スプレッドシート |
+| 状態 | **完成・公開済み** |
 
 ---
 
