@@ -39,6 +39,9 @@ todoリストアプリ/
 ├── sheets.py           # Google スプレッドシート連携
 ├── api/
 │   └── index.py        # Vercel 用エントリーポイント
+├── public/
+│   └── static/
+│       └── style.css   # Vercel 用静的ファイル
 ├── templates/
 │   ├── index.html      # 一覧・登録画面
 │   └── edit.html       # 編集画面

@@ -10,7 +10,7 @@ from sheets import SheetsError, create_todo, get_all_todos, get_todo_by_id, upda
 
 load_dotenv()
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="public/static", static_url_path="/static")
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-only-change-me")
 
 
