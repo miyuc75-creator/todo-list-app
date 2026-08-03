@@ -2,6 +2,7 @@
 
 import os
 import uuid
+from pathlib import Path
 
 from dotenv import load_dotenv
 from flask import Flask, flash, redirect, render_template, request, url_for
@@ -10,8 +11,23 @@ from sheets import SheetsError, create_todo, get_all_todos, get_todo_by_id, upda
 
 load_dotenv()
 
-app = Flask(__name__, static_folder="public/static", static_url_path="/static")
+BASE_DIR = Path(__file__).resolve().parent
+CSS_PATH = BASE_DIR / "public" / "static" / "style.css"
+
+app = Flask(__name__, static_folder=str(BASE_DIR / "public" / "static"), static_url_path="/static")
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-only-change-me")
+
+
+def _load_css() -> str:
+    try:
+        return CSS_PATH.read_text(encoding="utf-8")
+    except OSError:
+        return ""
+
+
+@app.context_processor
+def inject_css():
+    return {"app_css": _load_css()}
 
 
 @app.route("/", methods=["GET", "POST"])
