@@ -41,12 +41,10 @@ todoリストアプリ/
 │   └── index.py        # Vercel 用エントリーポイント
 ├── public/
 │   └── static/
-│       └── style.css   # Vercel 用静的ファイル
+│       └── style.css   # スタイルシート（Vercel / ローカル共通）
 ├── templates/
 │   ├── index.html      # 一覧・登録画面
 │   └── edit.html       # 編集画面
-├── static/
-│   └── style.css       # スタイルシート
 ├── requirements.txt    # Python パッケージ一覧
 ├── vercel.json         # Vercel 設定
 ├── .env.example        # 環境変数の例（値は書かない）
