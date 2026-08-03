@@ -1,0 +1,29 @@
+# 環境変数（機密情報）
+.env
+.env.*
+!.env.example
+
+# Google サービスアカウント等
+service-account.json
+credentials.json
+secret.json
+*-service-account*.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+venv/
+.venv/
+env/
+ENV/
+
+# OS / エディタ
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Vercel
+.vercel/
