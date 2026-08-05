@@ -10,8 +10,14 @@ import gspread
 from google.oauth2.service_account import Credentials
 
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
-LEGACY_HEADERS = ["id", "title", "content", "due_date", "created_at", "updated_at"]
-HEADERS = ["id", "title", "content", "due_date", "created_at", "updated_at", "color"]
+LEGACY_HEADERS_LIST = [
+    ["id", "title", "content", "due_date", "created_at", "updated_at"],
+    ["id", "title", "content", "due_date", "created_at", "updated_at", "color"],
+]
+HEADERS = [
+    "id", "title", "content", "due_date", "created_at", "updated_at",
+    "color", "due_time", "notify_before",
+]
 
 
 class SheetsError(Exception):
@@ -67,11 +73,8 @@ def _ensure_headers(worksheet) -> None:
     if not first_row:
         worksheet.append_row(HEADERS)
         return
-    if first_row == LEGACY_HEADERS:
-        worksheet.update("A1:G1", [HEADERS])
-        return
-    if first_row != HEADERS:
-        worksheet.update("A1:G1", [HEADERS])
+    if first_row in LEGACY_HEADERS_LIST or first_row != HEADERS:
+        worksheet.update("A1:I1", [HEADERS])
 
 
 def _now_iso() -> str:
@@ -88,6 +91,8 @@ def _row_to_todo(row: list) -> dict:
         "created_at": padded[4],
         "updated_at": padded[5],
         "color": padded[6],
+        "due_time": padded[7],
+        "notify_before": padded[8],
     }
 
 
@@ -109,21 +114,39 @@ def get_todo_by_id(todo_id: str) -> dict | None:
     return None
 
 
-def create_todo(todo_id: str, title: str, content: str, due_date: str, color: str = "") -> None:
+def create_todo(
+    todo_id: str,
+    title: str,
+    content: str,
+    due_date: str,
+    color: str = "",
+    due_time: str = "",
+    notify_before: str = "0",
+) -> None:
     worksheet = _get_worksheet()
     now = _now_iso()
-    worksheet.append_row([todo_id, title, content, due_date, now, now, color])
+    worksheet.append_row(
+        [todo_id, title, content, due_date, now, now, color, due_time, notify_before]
+    )
 
 
-def update_todo(todo_id: str, title: str, content: str, due_date: str, color: str = "") -> bool:
+def update_todo(
+    todo_id: str,
+    title: str,
+    content: str,
+    due_date: str,
+    color: str = "",
+    due_time: str = "",
+    notify_before: str = "0",
+) -> bool:
     worksheet = _get_worksheet()
     rows = worksheet.get_all_values()
     for index, row in enumerate(rows[1:], start=2):
         if row and row[0] == todo_id:
             created_at = row[4] if len(row) > 4 else _now_iso()
             worksheet.update(
-                f"A{index}:G{index}",
-                [[todo_id, title, content, due_date, created_at, _now_iso(), color]],
+                f"A{index}:I{index}",
+                [[todo_id, title, content, due_date, created_at, _now_iso(), color, due_time, notify_before]],
             )
             return True
     return False

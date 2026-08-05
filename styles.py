@@ -88,6 +88,22 @@ body {
   gap: 6px;
 }
 
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.field-hint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.notify-reminder {
+  color: #92400e;
+}
+
 label {
   font-weight: 600;
   font-size: 0.95rem;
@@ -101,6 +117,7 @@ label {
 
 input[type="text"],
 input[type="date"],
+input[type="time"],
 input[type="search"],
 select,
 textarea {
@@ -115,6 +132,7 @@ textarea {
 
 input[type="text"]:focus,
 input[type="date"]:focus,
+input[type="time"]:focus,
 input[type="search"]:focus,
 select:focus,
 textarea:focus {
@@ -376,6 +394,10 @@ textarea {
   }
 
   .search-sort-form {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row {
     grid-template-columns: 1fr;
   }
 

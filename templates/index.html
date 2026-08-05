@@ -23,16 +23,20 @@
       {% endif %}
     {% endwith %}
 
-    {% if notify_items %}
+    {% if show_notify_section %}
       <section class="notify-banner" id="notify-banner">
-        <h2>🔔 期日のお知らせ（{{ notify_items|length }}件）</h2>
-        <ul>
-          {% for item in notify_items %}
-            <li class="notify-item notify-{{ item.type }}">
-              <strong>{{ item.title }}</strong> — {{ item.message }}
-            </li>
-          {% endfor %}
-        </ul>
+        <h2>🔔 通知</h2>
+        {% if notify_items %}
+          <ul>
+            {% for item in notify_items %}
+              <li class="notify-item notify-{{ item.type }}">
+                <strong>{{ item.title }}</strong> — {{ item.message }}
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="field-hint">予定時刻に合わせて通知します。ページを開いたままにしてください。</p>
+        {% endif %}
         <button type="button" class="btn btn-secondary btn-sm" id="enable-notify-btn">
           ブラウザ通知を有効にする
         </button>
@@ -65,14 +69,35 @@
           >{{ form_content }}</textarea>
         </div>
 
+        <div class="form-row">
+          <div class="form-group">
+            <label for="due_date">期日</label>
+            <input
+              type="date"
+              id="due_date"
+              name="due_date"
+              value="{{ form_due_date }}"
+            >
+          </div>
+          <div class="form-group">
+            <label for="due_time">予定時刻</label>
+            <input
+              type="time"
+              id="due_time"
+              name="due_time"
+              value="{{ form_due_time }}"
+            >
+          </div>
+        </div>
+
         <div class="form-group">
-          <label for="due_date">期日</label>
-          <input
-            type="date"
-            id="due_date"
-            name="due_date"
-            value="{{ form_due_date }}"
-          >
+          <label for="notify_before">通知タイミング</label>
+          <select id="notify_before" name="notify_before">
+            {% for key, label in notify_options.items() %}
+              <option value="{{ key }}" {% if form_notify_before == key %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          <p class="field-hint">通知を使う場合は期日と予定時刻を入力してください。</p>
         </div>
 
         <div class="form-group">
@@ -150,7 +175,7 @@
                   {% elif todo.due_status == "overdue" %}
                     <span class="due-badge due-badge-overdue">期日: {{ todo.due_date }}（期限切れ）</span>
                   {% elif todo.due_date %}
-                    <span class="due-badge">期日: {{ todo.due_date }}</span>
+                    <span class="due-badge">期日: {{ todo.schedule_label or todo.due_date }}</span>
                   {% else %}
                     <span class="due-badge due-badge-empty">期日: 未設定</span>
                   {% endif %}
@@ -167,6 +192,9 @@
                 <span>登録: {{ todo.created_at or "—" }}</span>
                 {% if todo.updated_at and todo.updated_at != todo.created_at %}
                   <span>更新: {{ todo.updated_at }}</span>
+                {% endif %}
+                {% if todo.notify_before and todo.notify_before != "0" %}
+                  <span>通知: {{ todo.notify_label }}</span>
                 {% endif %}
               </div>
 
@@ -188,34 +216,57 @@
 
   <script>
     (function () {
-      var items = {{ notify_json | safe }};
-      if (!items.length) return;
-
+      var bannerItems = {{ notify_json | safe }};
+      var scheduledItems = {{ scheduled_json | safe }};
       var btn = document.getElementById("enable-notify-btn");
-      if (!btn) return;
 
-      function showNotifications() {
-        items.forEach(function (item) {
-          new Notification("Todo: " + item.title, { body: item.message });
-        });
+      function showBrowserNotification(title, body) {
+        if (!("Notification" in window) || Notification.permission !== "granted") return;
+        new Notification("Todo: " + title, { body: body });
       }
 
-      btn.addEventListener("click", function () {
+      function enableNotifications(callback) {
         if (!("Notification" in window)) {
           alert("このブラウザは通知に対応していません。");
           return;
         }
         if (Notification.permission === "granted") {
-          showNotifications();
-          btn.textContent = "通知を表示しました";
+          callback();
           return;
         }
         Notification.requestPermission().then(function (permission) {
-          if (permission === "granted") {
-            showNotifications();
-            btn.textContent = "通知を表示しました";
-          }
+          if (permission === "granted") callback();
         });
+      }
+
+      if (btn) {
+        btn.addEventListener("click", function () {
+          enableNotifications(function () {
+            bannerItems.forEach(function (item) {
+              showBrowserNotification(item.title, item.message);
+            });
+            btn.textContent = "通知を表示しました";
+          });
+        });
+      }
+
+      scheduledItems.forEach(function (item) {
+        var notifyAt = new Date(item.notify_at).getTime();
+        var dueAt = new Date(item.due_at).getTime();
+        var now = Date.now();
+        var delay = notifyAt - now;
+
+        function fire() {
+          enableNotifications(function () {
+            showBrowserNotification(item.title, item.message);
+          });
+        }
+
+        if (now >= notifyAt && now <= dueAt) {
+          fire();
+        } else if (delay > 0 && delay < 86400000) {
+          setTimeout(fire, delay);
+        }
       });
     })();
   </script>
