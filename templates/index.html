@@ -23,6 +23,22 @@
       {% endif %}
     {% endwith %}
 
+    {% if notify_items %}
+      <section class="notify-banner" id="notify-banner">
+        <h2>🔔 期日のお知らせ（{{ notify_items|length }}件）</h2>
+        <ul>
+          {% for item in notify_items %}
+            <li class="notify-item notify-{{ item.type }}">
+              <strong>{{ item.title }}</strong> — {{ item.message }}
+            </li>
+          {% endfor %}
+        </ul>
+        <button type="button" class="btn btn-secondary btn-sm" id="enable-notify-btn">
+          ブラウザ通知を有効にする
+        </button>
+      </section>
+    {% endif %}
+
     <section class="card form-card">
       <h2>新しい Todo を登録</h2>
       <form method="post" action="{{ url_for('index') }}" class="todo-form">
@@ -59,24 +75,86 @@
           >
         </div>
 
+        <div class="form-group">
+          <label>色分け</label>
+          <div class="color-picker">
+            {% for key, opt in color_options.items() %}
+              <label class="color-option">
+                <input
+                  type="radio"
+                  name="color"
+                  value="{{ key }}"
+                  {% if form_color == key %}checked{% endif %}
+                >
+                <span
+                  class="color-swatch"
+                  style="background: {{ opt.bg }}; border-color: {{ opt.border }};"
+                  title="{{ opt.label }}"
+                ></span>
+                <span class="color-label">{{ opt.label }}</span>
+              </label>
+            {% endfor %}
+          </div>
+        </div>
+
         <button type="submit" class="btn btn-primary">登録する</button>
       </form>
     </section>
 
     <section class="todo-list-section">
-      <h2>登録済み Todo（{{ todos|length }}件）</h2>
+      <div class="list-toolbar">
+        <h2>登録済み Todo（{{ todos|length }}件）</h2>
+        <form method="get" action="{{ url_for('index') }}" class="search-sort-form">
+          <div class="form-group">
+            <label for="q">検索</label>
+            <input
+              type="search"
+              id="q"
+              name="q"
+              value="{{ search_query }}"
+              placeholder="タイトル・内容で検索"
+            >
+          </div>
+          <div class="form-group">
+            <label for="sort">並び替え</label>
+            <select id="sort" name="sort">
+              {% for key, label in sort_options.items() %}
+                <option value="{{ key }}" {% if sort_key == key %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-secondary">適用</button>
+          {% if search_query %}
+            <a href="{{ url_for('index') }}" class="btn btn-link">クリア</a>
+          {% endif %}
+        </form>
+      </div>
 
       {% if todos %}
         <div class="todo-list">
           {% for todo in todos %}
-            <article class="card todo-card">
+            <article
+              class="card todo-card"
+              style="background: {{ todo.color_info.bg }}; border-left: 4px solid {{ todo.color_info.border }};"
+            >
               <div class="todo-card-header">
                 <h3>{{ todo.title }}</h3>
-                {% if todo.due_date %}
-                  <span class="due-badge">期日: {{ todo.due_date }}</span>
-                {% else %}
-                  <span class="due-badge due-badge-empty">期日: 未設定</span>
-                {% endif %}
+                <div class="badge-group">
+                  {% if todo.color_info.label != "なし" %}
+                    <span class="color-badge" style="border-color: {{ todo.color_info.border }};">
+                      {{ todo.color_info.label }}
+                    </span>
+                  {% endif %}
+                  {% if todo.due_status == "today" %}
+                    <span class="due-badge due-badge-today">期日: 今日</span>
+                  {% elif todo.due_status == "overdue" %}
+                    <span class="due-badge due-badge-overdue">期日: {{ todo.due_date }}（期限切れ）</span>
+                  {% elif todo.due_date %}
+                    <span class="due-badge">期日: {{ todo.due_date }}</span>
+                  {% else %}
+                    <span class="due-badge due-badge-empty">期日: 未設定</span>
+                  {% endif %}
+                </div>
               </div>
 
               {% if todo.content %}
@@ -98,10 +176,48 @@
         </div>
       {% else %}
         <div class="card empty-state">
-          <p>まだ Todo が登録されていません。上のフォームから追加してください。</p>
+          {% if search_query %}
+            <p>「{{ search_query }}」に一致する Todo はありません。</p>
+          {% else %}
+            <p>まだ Todo が登録されていません。上のフォームから追加してください。</p>
+          {% endif %}
         </div>
       {% endif %}
     </section>
   </div>
+
+  <script>
+    (function () {
+      var items = {{ notify_json | safe }};
+      if (!items.length) return;
+
+      var btn = document.getElementById("enable-notify-btn");
+      if (!btn) return;
+
+      function showNotifications() {
+        items.forEach(function (item) {
+          new Notification("Todo: " + item.title, { body: item.message });
+        });
+      }
+
+      btn.addEventListener("click", function () {
+        if (!("Notification" in window)) {
+          alert("このブラウザは通知に対応していません。");
+          return;
+        }
+        if (Notification.permission === "granted") {
+          showNotifications();
+          btn.textContent = "通知を表示しました";
+          return;
+        }
+        Notification.requestPermission().then(function (permission) {
+          if (permission === "granted") {
+            showNotifications();
+            btn.textContent = "通知を表示しました";
+          }
+        });
+      });
+    })();
+  </script>
 </body>
 </html>

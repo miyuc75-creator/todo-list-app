@@ -101,6 +101,8 @@ label {
 
 input[type="text"],
 input[type="date"],
+input[type="search"],
+select,
 textarea {
   width: 100%;
   padding: 10px 12px;
@@ -113,6 +115,8 @@ textarea {
 
 input[type="text"]:focus,
 input[type="date"]:focus,
+input[type="search"]:focus,
+select:focus,
 textarea:focus {
   outline: none;
   border-color: #2563eb;
@@ -165,6 +169,120 @@ textarea {
 
 .btn-link:hover {
   background: #f9fafb;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.875rem;
+}
+
+.notify-banner {
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.notify-banner h2 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+}
+
+.notify-banner ul {
+  margin: 0 0 12px;
+  padding-left: 20px;
+}
+
+.notify-item {
+  margin-bottom: 4px;
+}
+
+.notify-today {
+  color: #92400e;
+}
+
+.notify-overdue {
+  color: #991b1b;
+}
+
+.color-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.color-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.color-option input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.color-swatch {
+  display: block;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 2px solid #d1d5db;
+}
+
+.color-option input:checked + .color-swatch {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.color-label {
+  color: #6b7280;
+}
+
+.list-toolbar {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.search-sort-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.badge-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.color-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 2px solid;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: #fff;
+}
+
+.due-badge-today {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.due-badge-overdue {
+  background: #fee2e2;
+  color: #991b1b;
 }
 
 .form-actions {
@@ -255,6 +373,10 @@ textarea {
 
   .form-actions {
     flex-direction: column;
+  }
+
+  .search-sort-form {
+    grid-template-columns: 1fr;
   }
 
   .btn {

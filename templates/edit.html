@@ -58,6 +58,28 @@
           >
         </div>
 
+        <div class="form-group">
+          <label>色分け</label>
+          <div class="color-picker">
+            {% for key, opt in color_options.items() %}
+              <label class="color-option">
+                <input
+                  type="radio"
+                  name="color"
+                  value="{{ key }}"
+                  {% if todo.color == key %}checked{% endif %}
+                >
+                <span
+                  class="color-swatch"
+                  style="background: {{ opt.bg }}; border-color: {{ opt.border }};"
+                  title="{{ opt.label }}"
+                ></span>
+                <span class="color-label">{{ opt.label }}</span>
+              </label>
+            {% endfor %}
+          </div>
+        </div>
+
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">更新する</button>
           <a href="{{ url_for('index') }}" class="btn btn-link">一覧へ戻る</a>

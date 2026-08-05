@@ -15,6 +15,9 @@ Google スプレッドシートにデータを保存し、Vercel で公開して
 
 - Todo の **新規登録・編集・一覧表示**
 - **タイトル・内容・期日** の管理
+- **色分け**（7色から選択、カードで表示）
+- **検索**（タイトル・内容）・**並び替え**（期日・登録日・タイトル）
+- **期日通知**（今日 / 期限切れを画面とブラウザ通知で表示）
 - **Google スプレッドシート** への永続化（再読み込みしても残る）
 - **日本語 UI**・**レスポンシブデザイン**（スマホ / PC 対応）
 - **環境変数** による安全な認証情報管理
@@ -121,6 +124,7 @@ python3 -c "import json; print(json.dumps(json.load(open('path/to/service-accoun
 | due_date | 期日 |
 | created_at | 登録日時 |
 | updated_at | 更新日時 |
+| color | 色分け（red / orange / yellow / green / blue / purple / 空） |
 
 ---
 
